@@ -1,0 +1,662 @@
+{
+  "info": {
+    "_postman_id": "wrestling-dashboard-api-v1",
+    "name": "Wrestling Dashboard API",
+    "description": "API collection for Wrestling Dashboard Backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api/v1"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('accessToken', response.accessToken);",
+                  "    pm.environment.set('refreshToken', response.refreshToken);",
+                  "    pm.test('Login successful', function() {",
+                  "        pm.expect(response.accessToken).to.be.a('string');",
+                  "        pm.expect(response.user.role).to.be.oneOf(['admin', 'coach', 'athlete']);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@wrestling.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.environment.set('accessToken', response.accessToken);",
+                  "    pm.test('Token refreshed', function() {",
+                  "        pm.expect(response.accessToken).to.be.a('string');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/refresh",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wrestlers",
+      "item": [
+        {
+          "name": "List Wrestlers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Has wrestlers array', function() {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.wrestlers).to.be.an('array');",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    const wrestlers = pm.response.json().wrestlers;",
+                  "    if (wrestlers.length > 0) {",
+                  "        pm.environment.set('wrestlerId', wrestlers[0].id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers?limit=100&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers"],
+              "query": [
+                {"key": "limit", "value": "100"},
+                {"key": "offset", "value": "0"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Wrestler",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}"]
+            }
+          }
+        },
+        {
+          "name": "Get Overview",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/overview",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "overview"]
+            }
+          }
+        },
+        {
+          "name": "Get Overview Score",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/overview/score",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "overview", "score"]
+            }
+          }
+        },
+        {
+          "name": "Get Overview Chart",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/overview/chart",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "overview", "chart"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Body Composition",
+      "item": [
+        {
+          "name": "Get Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/body-composition",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "body-composition"]
+            }
+          }
+        },
+        {
+          "name": "Get Score",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/body-composition/score",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "body-composition", "score"]
+            }
+          }
+        },
+        {
+          "name": "Get Trends",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/body-composition/trends?limit=30",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "body-composition", "trends"],
+              "query": [{"key": "limit", "value": "30"}]
+            }
+          }
+        },
+        {
+          "name": "Get InBody",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/body-composition/inbody",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "body-composition", "inbody"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bloodwork",
+      "item": [
+        {
+          "name": "Get Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/bloodwork",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "bloodwork"]
+            }
+          }
+        },
+        {
+          "name": "Get Score",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/bloodwork/score",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "bloodwork", "score"]
+            }
+          }
+        },
+        {
+          "name": "Get Charts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/bloodwork/charts?limit=30",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "bloodwork", "charts"],
+              "query": [{"key": "limit", "value": "30"}]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Recovery",
+      "item": [
+        {
+          "name": "Get Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/recovery",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "recovery"]
+            }
+          }
+        },
+        {
+          "name": "Get Score",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/recovery/score",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "recovery", "score"]
+            }
+          }
+        },
+        {
+          "name": "Get Charts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/recovery/charts?limit=30",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "recovery", "charts"],
+              "query": [{"key": "limit", "value": "30"}]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Supplements",
+      "item": [
+        {
+          "name": "Get Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/supplements",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "supplements"]
+            }
+          }
+        },
+        {
+          "name": "Get Score",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/supplements/score",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "supplements", "score"]
+            }
+          }
+        },
+        {
+          "name": "Get Charts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/supplements/charts?limit=30",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "supplements", "charts"],
+              "query": [{"key": "limit", "value": "30"}]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Performance",
+      "item": [
+        {
+          "name": "Get Metrics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/bodybuilding-performance",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "bodybuilding-performance"]
+            }
+          }
+        },
+        {
+          "name": "Get Score",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/bodybuilding-performance/score",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "bodybuilding-performance", "score"]
+            }
+          }
+        },
+        {
+          "name": "Get Charts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/bodybuilding-performance/charts?limit=30",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "bodybuilding-performance", "charts"],
+              "query": [{"key": "limit", "value": "30"}]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Training",
+      "item": [
+        {
+          "name": "Get Program",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/training-program",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "training-program"]
+            }
+          }
+        },
+        {
+          "name": "Submit Program",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"date\": \"2025-01-29\",\n  \"readiness\": 7,\n  \"sessionRPE\": 7,\n  \"bodyweight\": 86,\n  \"hydration\": 3.0,\n  \"notes\": \"Good training session\",\n  \"exercises\": [\n    {\n      \"name\": \"Bench Press\",\n      \"sets\": [\n        {\"reps\": 8, \"weight\": 100},\n        {\"reps\": 8, \"weight\": 105},\n        {\"reps\": 6, \"weight\": 110}\n      ]\n    },\n    {\n      \"name\": \"Squat\",\n      \"sets\": [\n        {\"reps\": 8, \"weight\": 140},\n        {\"reps\": 8, \"weight\": 150}\n      ]\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/training-program",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "training-program"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Calendar",
+      "item": [
+        {
+          "name": "Get Calendar",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/calendar?month=1&year=2025",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "calendar"],
+              "query": [
+                {"key": "month", "value": "1"},
+                {"key": "year", "value": "2025"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Teams",
+      "item": [
+        {
+          "name": "Get Stats",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teams/{{teamId}}/stats",
+              "host": ["{{base_url}}"],
+              "path": ["teams", "{{teamId}}", "stats"]
+            }
+          }
+        },
+        {
+          "name": "Get Athletes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teams/{{teamId}}/athletes?limit=50&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["teams", "{{teamId}}", "athletes"],
+              "query": [
+                {"key": "limit", "value": "50"},
+                {"key": "offset", "value": "0"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI",
+      "item": [
+        {
+          "name": "Chart Insight",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', function() {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('Has summary', function() {",
+                  "    const response = pm.response.json();",
+                  "    pm.expect(response.summary).to.be.a('string');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"wrestlerId\": \"{{wrestlerId}}\",\n  \"chartId\": \"overview-radar\",\n  \"chartData\": {\n    \"labels\": [\"کمر\", \"سینه\", \"پاها\", \"بازوها\", \"شانه‌ها\", \"میان‌تنه\"],\n    \"values\": [92, 85, 78, 48, 80, 55]\n  },\n  \"locale\": \"fa-IR\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/ai/chart-insight",
+              "host": ["{{base_url}}"],
+              "path": ["ai", "chart-insight"]
+            }
+          }
+        },
+        {
+          "name": "Advanced Insight",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"wrestlerId\": \"{{wrestlerId}}\",\n  \"section\": \"body_composition\",\n  \"chartId\": \"weight-trend\",\n  \"chartData\": {\n    \"series\": [\n      {\n        \"name\": \"weight\",\n        \"points\": [\n          {\"date\": \"2025-01-01\", \"value\": 87},\n          {\"date\": \"2025-01-15\", \"value\": 86},\n          {\"date\": \"2025-01-29\", \"value\": 86}\n        ]\n      }\n    ]\n  },\n  \"context\": {\n    \"baseline\": {\"value\": 85, \"label\": \"Target Weight\"},\n    \"thresholds\": [{\"label\": \"Competition\", \"value\": 86}]\n  },\n  \"locale\": \"en-US\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/ai/chart-insight/advanced",
+              "host": ["{{base_url}}"],
+              "path": ["ai", "chart-insight", "advanced"]
+            }
+          }
+        },
+        {
+          "name": "Generate Training Program",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"wrestlerId\": \"{{wrestlerId}}\",\n  \"goal\": \"strength\",\n  \"date\": \"2025-02-01\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/ai/training-program",
+              "host": ["{{base_url}}"],
+              "path": ["ai", "training-program"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Scores",
+      "item": [
+        {
+          "name": "Overall Score",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/scores/overall",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "scores", "overall"]
+            }
+          }
+        },
+        {
+          "name": "Domain Scores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/scores/domains",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "scores", "domains"]
+            }
+          }
+        },
+        {
+          "name": "Score Explanation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers/{{wrestlerId}}/scores/explanation",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers", "{{wrestlerId}}", "scores", "explanation"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
