@@ -29,7 +29,19 @@ from app.models.database import (
     TokenBlacklist,
 )
 
+from app.models.legacy import (
+    LegacyAthlete,
+    SessionTime,
+    LegacyMetric,
+    BodyCompositionFS,
+    BodyCompositionGR,
+    ChestbeltHRGR,
+    FitnessFS,
+    UrionAnalysisGR,
+)
+
 __all__ = [
+    # New API models
     "User",
     "UserRole",
     "Team",
@@ -56,4 +68,13 @@ __all__ = [
     "SectionScore",
     "ScoreDriver",
     "TokenBlacklist",
+    # Legacy Fittechno models
+    "LegacyAthlete",
+    "SessionTime",
+    "LegacyMetric",
+    "BodyCompositionFS",
+    "BodyCompositionGR",
+    "ChestbeltHRGR",
+    "FitnessFS",
+    "UrionAnalysisGR",
 ]

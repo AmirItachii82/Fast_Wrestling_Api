@@ -4,7 +4,7 @@ from fastapi import APIRouter
 
 from app.api.v1 import auth, wrestlers, overview, body_composition, bloodwork
 from app.api.v1 import recovery, supplements, performance, training, calendar
-from app.api.v1 import teams, ai, scores
+from app.api.v1 import teams, ai, scores, legacy_data
 
 router = APIRouter()
 
@@ -22,3 +22,4 @@ router.include_router(calendar.router, prefix="/wrestlers", tags=["Calendar"])
 router.include_router(teams.router, prefix="/teams", tags=["Teams"])
 router.include_router(ai.router, prefix="/ai", tags=["AI"])
 router.include_router(scores.router, prefix="/wrestlers", tags=["Scores"])
+router.include_router(legacy_data.router, prefix="/data", tags=["Legacy Data"])

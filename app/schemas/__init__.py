@@ -80,7 +80,28 @@ from app.schemas.api import (
     TimeSeriesData,
 )
 
+from app.schemas.legacy import (
+    MeasurementWithDate,
+    PaginationInfo,
+    LegacyAthleteResponse,
+    LegacyAthleteListResponse,
+    SessionTimeResponse,
+    SessionTimeListResponse,
+    MetricDefinitionResponse,
+    MetricDefinitionListResponse,
+    LegacyBodyCompositionResponse,
+    LegacyBodyCompositionListResponse,
+    LegacyChestbeltHRResponse,
+    LegacyChestbeltHRListResponse,
+    LegacyFitnessResponse,
+    LegacyFitnessListResponse,
+    LegacyUrionAnalysisResponse,
+    LegacyUrionAnalysisListResponse,
+    MeasurementFilterParams,
+)
+
 __all__ = [
+    # API schemas
     "ErrorResponse",
     "LoginRequest",
     "LoginResponse",
@@ -158,4 +179,22 @@ __all__ = [
     "Grade",
     "Priority",
     "TimeSeriesData",
+    # Legacy schemas
+    "MeasurementWithDate",
+    "PaginationInfo",
+    "LegacyAthleteResponse",
+    "LegacyAthleteListResponse",
+    "SessionTimeResponse",
+    "SessionTimeListResponse",
+    "MetricDefinitionResponse",
+    "MetricDefinitionListResponse",
+    "LegacyBodyCompositionResponse",
+    "LegacyBodyCompositionListResponse",
+    "LegacyChestbeltHRResponse",
+    "LegacyChestbeltHRListResponse",
+    "LegacyFitnessResponse",
+    "LegacyFitnessListResponse",
+    "LegacyUrionAnalysisResponse",
+    "LegacyUrionAnalysisListResponse",
+    "MeasurementFilterParams",
 ]
