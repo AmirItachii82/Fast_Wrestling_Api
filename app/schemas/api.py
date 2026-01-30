@@ -4,11 +4,10 @@ Pydantic schemas for the Wrestling Dashboard API.
 This module defines request/response schemas that match the API documentation.
 """
 
-from datetime import date, datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, List, Optional
 
-from pydantic import BaseModel, Field, field_validator, EmailStr
+from pydantic import BaseModel, Field, EmailStr
 
 
 # ============================================================================

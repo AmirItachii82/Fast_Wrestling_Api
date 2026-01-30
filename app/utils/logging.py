@@ -9,7 +9,6 @@ This module provides:
 
 import logging
 import sys
-from typing import Any, Dict
 
 import structlog
 

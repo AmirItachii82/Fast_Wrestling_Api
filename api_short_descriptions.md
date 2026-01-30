@@ -5,10 +5,23 @@ Brief descriptions of all available APIs for the Wrestling Dashboard database.
 ## Base URL
 
 ```
-http://localhost/api/{table_name}
+http://localhost/api/v1
 ```
 
-## Available APIs
+---
+
+## Authentication APIs
+
+| API Endpoint | Method | Description |
+|--------------|--------|-------------|
+| `/api/v1/auth/signup` | POST | Register a new user account with email, password, name, and role |
+| `/api/v1/auth/login` | POST | Authenticate user and receive JWT access and refresh tokens |
+| `/api/v1/auth/refresh` | POST | Refresh an expired access token using a valid refresh token |
+| `/api/v1/auth/logout` | POST | Logout user by blacklisting their refresh token |
+
+---
+
+## Data APIs
 
 | API Endpoint | Description |
 |--------------|-------------|

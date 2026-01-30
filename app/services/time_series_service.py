@@ -5,8 +5,7 @@ This module provides functions for fetching time series data
 for various metrics and sections.
 """
 
-from datetime import datetime, timedelta
-from typing import List, Tuple, Optional
+from typing import List, Tuple
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession

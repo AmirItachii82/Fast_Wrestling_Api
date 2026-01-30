@@ -5,7 +5,6 @@ This module defines request/response schemas for accessing legacy measurement da
 from the Fittechno database with session date resolution.
 """
 
-from datetime import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel, Field

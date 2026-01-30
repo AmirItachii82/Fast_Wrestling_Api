@@ -6,8 +6,7 @@ for each section: overview, body_composition, bloodwork, recovery,
 supplements, and bodybuilding_performance.
 """
 
-from datetime import datetime
-from typing import Dict, List, Optional, Tuple
+from typing import Optional, Tuple
 
 from app.models import Grade
 

@@ -16,12 +16,8 @@ from typing import Any, Dict, List, Optional
 
 from app.core.config import get_settings
 from app.schemas.api import (
-    ChartInsightRequest,
     ChartInsightResponse,
-    AdvancedChartInsightRequest,
     AdvancedChartInsightResponse,
-    AITrainingProgramRequest,
-    AITrainingProgramResponse,
     Recommendation,
     Anomaly,
     Priority,

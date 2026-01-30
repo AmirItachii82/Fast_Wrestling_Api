@@ -9,7 +9,7 @@ Provides:
 - DELETE /wrestlers/{wrestlerId} - Delete a wrestler
 """
 
-from typing import Annotated, Optional
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession

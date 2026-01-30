@@ -12,7 +12,6 @@ from typing import Annotated, List
 from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from app.db.session import get_db
 from app.models import User, SectionScore, ScoreDriver
@@ -22,7 +21,7 @@ from app.schemas import (
     ScoreExplanationResponse,
     ErrorResponse,
 )
-from app.schemas.api import ScoreDriverItem, Grade
+from app.schemas.api import ScoreDriverItem
 from app.services.wrestler_service import get_latest_section_score
 from app.services.scoring_service import compute_overall_wrestler_score
 from app.utils.dependencies import get_current_user, validate_wrestler_access

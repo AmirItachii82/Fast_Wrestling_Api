@@ -5,7 +5,7 @@ Complete usage documentation for all Wrestling Dashboard database APIs.
 ## Base URL
 
 ```
-http://localhost/api/{table_name}
+http://localhost/api/v1
 ```
 
 ## Common Features
@@ -20,6 +20,206 @@ All APIs share the following behavior:
 
 ```
 GET /api/{table_name}?column1=value1&column2=value2
+```
+
+---
+
+## Authentication APIs
+
+Authentication endpoints for user registration, login, token management, and logout.
+
+### POST /api/v1/auth/signup
+
+Register a new user account.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `email` | string | Yes | User email address (must be valid email format) |
+| `password` | string | Yes | User password (8-128 characters) |
+| `name` | string | Yes | User display name (1-255 characters) |
+| `role` | string | No | User role: `admin`, `coach`, or `athlete` (default: `athlete`) |
+| `wrestlerId` | string | No | UUID of associated wrestler (for athlete role) |
+| `teamId` | string | No | UUID of associated team |
+
+**Example Request:**
+
+```bash
+POST /api/v1/auth/signup
+Content-Type: application/json
+
+{
+  "email": "coach@wrestling.com",
+  "password": "securePassword123",
+  "name": "Ali Karimi",
+  "role": "coach",
+  "teamId": "550e8400-e29b-41d4-a716-446655440000"
+}
+```
+
+**Success Response (201 Created):**
+
+```json
+{
+  "id": "770e8400-e29b-41d4-a716-446655440002",
+  "email": "coach@wrestling.com",
+  "name": "Ali Karimi",
+  "role": "coach",
+  "createdAt": "2025-01-15T09:30:00Z"
+}
+```
+
+**Error Responses:**
+
+- **400 Bad Request** - Invalid request data (validation failed)
+- **409 Conflict** - User with this email already exists
+
+```json
+{
+  "error": "USER_EXISTS",
+  "message": "A user with this email already exists",
+  "details": {
+    "email": "coach@wrestling.com"
+  }
+}
+```
+
+---
+
+### POST /api/v1/auth/login
+
+Authenticate user and receive JWT tokens.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `email` | string | Yes | User email address |
+| `password` | string | Yes | User password |
+
+**Example Request:**
+
+```bash
+POST /api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "coach@wrestling.com",
+  "password": "securePassword123"
+}
+```
+
+**Success Response (200 OK):**
+
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": "770e8400-e29b-41d4-a716-446655440002",
+    "name": "Ali Karimi",
+    "role": "coach"
+  }
+}
+```
+
+**Error Responses:**
+
+- **401 Unauthorized** - Invalid email or password
+
+```json
+{
+  "error": "INVALID_CREDENTIALS",
+  "message": "Invalid email or password",
+  "details": {}
+}
+```
+
+---
+
+### POST /api/v1/auth/refresh
+
+Refresh an expired access token using a valid refresh token.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `refreshToken` | string | Yes | Valid refresh token from login |
+
+**Example Request:**
+
+```bash
+POST /api/v1/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Success Response (200 OK):**
+
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Error Responses:**
+
+- **401 Unauthorized** - Invalid or expired refresh token
+
+```json
+{
+  "error": "INVALID_REFRESH_TOKEN",
+  "message": "Invalid or expired refresh token",
+  "details": {}
+}
+```
+
+---
+
+### POST /api/v1/auth/logout
+
+Logout user by blacklisting their refresh token.
+
+**Request Body:**
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `refreshToken` | string | Yes | Refresh token to invalidate |
+
+**Example Request:**
+
+```bash
+POST /api/v1/auth/logout
+Content-Type: application/json
+
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Success Response (200 OK):**
+
+```json
+{
+  "success": true
+}
+```
+
+**Error Responses:**
+
+- **401 Unauthorized** - Invalid refresh token
+
+```json
+{
+  "error": "INVALID_TOKEN",
+  "message": "Invalid refresh token",
+  "details": {}
+}
 ```
 
 ---

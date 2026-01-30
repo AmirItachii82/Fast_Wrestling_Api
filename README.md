@@ -95,6 +95,24 @@ Once the server is running, access:
 - **ReDoc**: http://localhost:8000/api/v1/redoc
 - **OpenAPI JSON**: http://localhost:8000/api/v1/openapi.json
 
+### Documentation Files
+
+| File | Description |
+|------|-------------|
+| [api_short_descriptions.md](./api_short_descriptions.md) | Brief overview of all API endpoints |
+| [api_full_usage.md](./api_full_usage.md) | Complete API usage documentation with examples |
+| [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | System architecture and data model |
+| [docs/API-USAGE.md](./docs/API-USAGE.md) | Detailed API usage guide with curl examples |
+| [docs/API-DESCRIPTION.md](./docs/API-DESCRIPTION.md) | Complete endpoint descriptions |
+| [docs/DATABASE-IMPORT-GUIDE.md](./docs/DATABASE-IMPORT-GUIDE.md) | Database setup and import guide |
+| [docs/POSTMAN-INSTRUCTIONS.md](./docs/POSTMAN-INSTRUCTIONS.md) | Postman collection usage instructions |
+
+### Postman Collections
+
+Two Postman collections are available in the `postman/` folder:
+- **Wrestling_Dashboard_API.postman_collection.json** - Modern API endpoints
+- **Legacy_Database_API.postman_collection.json** - Legacy Fittechno database endpoints
+
 ## Project Structure
 
 ```

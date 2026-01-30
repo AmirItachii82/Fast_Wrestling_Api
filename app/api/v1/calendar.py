@@ -5,13 +5,12 @@ Provides:
 - GET /wrestlers/{wrestlerId}/calendar - Monthly programs
 """
 
-from datetime import date, timedelta
+from datetime import date
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from app.db.session import get_db
 from app.models import User, TrainingProgram, TrainingProgramBlock, TrainingProgramAIRecommendation
