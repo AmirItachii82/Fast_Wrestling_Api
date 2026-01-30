@@ -3,6 +3,7 @@ Body Composition endpoints.
 
 Provides:
 - GET /wrestlers/{wrestlerId}/body-composition - Summary metrics
+- POST /wrestlers/{wrestlerId}/body-composition - Create metrics
 - GET /wrestlers/{wrestlerId}/body-composition/score - Section score
 - GET /wrestlers/{wrestlerId}/body-composition/trends - Trend charts
 - GET /wrestlers/{wrestlerId}/body-composition/inbody - InBody breakdown
@@ -10,17 +11,19 @@ Provides:
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
-from app.models import User
+from app.models import User, BodyCompositionMetrics
 from app.schemas import (
     BodyCompositionResponse,
     BodyCompositionMetricsData,
     BodyCompositionTrendsResponse,
     SectionScoreResponse,
     InBodyResponse,
+    BodyCompositionCreateRequest,
+    BodyCompositionCreateResponse,
     ErrorResponse,
     TimeSeriesData,
 )
@@ -29,7 +32,7 @@ from app.services.wrestler_service import (
     get_latest_section_score,
 )
 from app.services.time_series_service import get_body_composition_series
-from app.utils.dependencies import get_current_user, validate_wrestler_access
+from app.utils.dependencies import get_current_user, validate_wrestler_access, require_admin_or_coach
 
 router = APIRouter()
 
@@ -79,6 +82,54 @@ async def get_body_composition_metrics(
             powerToWeight=metrics.power_to_weight,
         )
     )
+
+
+@router.post(
+    "/{wrestler_id}/body-composition",
+    response_model=BodyCompositionCreateResponse,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Access denied"},
+    },
+)
+async def create_body_composition_metrics(
+    wrestler_id: str,
+    request: BodyCompositionCreateRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(require_admin_or_coach)],
+) -> BodyCompositionCreateResponse:
+    """
+    Create body composition metrics for a wrestler.
+    
+    Args:
+        wrestler_id: The wrestler ID.
+        request: Body composition metrics data.
+        db: Database session.
+        current_user: Authenticated user (admin or coach).
+        
+    Returns:
+        BodyCompositionCreateResponse: Success status and created ID.
+    """
+    await validate_wrestler_access(wrestler_id, current_user, db)
+    
+    metrics = BodyCompositionMetrics(
+        wrestler_id=wrestler_id,
+        weight=request.weight,
+        body_fat_percent=request.bodyFatPercentage,
+        muscle_mass=request.muscleMass,
+        bmr=request.bmr,
+        power_to_weight=request.powerToWeight,
+        intracellular_water=request.intracellularWater,
+        extracellular_water=request.extracellularWater,
+        visceral_fat_level=request.visceralFatLevel,
+        phase_angle=request.phaseAngle,
+    )
+    db.add(metrics)
+    await db.commit()
+    await db.refresh(metrics)
+    
+    return BodyCompositionCreateResponse(success=True, id=metrics.id)
 
 
 @router.get(

@@ -3,22 +3,26 @@ Bloodwork endpoints.
 
 Provides:
 - GET /wrestlers/{wrestlerId}/bloodwork - Panels summary
+- POST /wrestlers/{wrestlerId}/bloodwork - Create bloodwork metrics
 - GET /wrestlers/{wrestlerId}/bloodwork/score - Section score
 - GET /wrestlers/{wrestlerId}/bloodwork/charts - Panel charts
 """
 
+from datetime import date
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
-from app.models import User
+from app.models import User, BloodworkMetrics
 from app.schemas import (
     BloodworkResponse,
     BloodworkMetricsData,
     BloodworkChartsResponse,
     SectionScoreResponse,
+    BloodworkCreateRequest,
+    BloodworkCreateResponse,
     ErrorResponse,
     TimeSeriesData,
 )
@@ -28,7 +32,7 @@ from app.services.wrestler_service import (
     get_latest_section_score,
 )
 from app.services.time_series_service import get_bloodwork_series
-from app.utils.dependencies import get_current_user, validate_wrestler_access
+from app.utils.dependencies import get_current_user, validate_wrestler_access, require_admin_or_coach
 
 router = APIRouter()
 
@@ -81,6 +85,63 @@ async def get_bloodwork_metrics(
             status=metrics.status,
         )
     )
+
+
+@router.post(
+    "/{wrestler_id}/bloodwork",
+    response_model=BloodworkCreateResponse,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Access denied"},
+    },
+)
+async def create_bloodwork_metrics(
+    wrestler_id: str,
+    request: BloodworkCreateRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(require_admin_or_coach)],
+) -> BloodworkCreateResponse:
+    """
+    Create bloodwork metrics for a wrestler.
+    
+    Args:
+        wrestler_id: The wrestler ID.
+        request: Bloodwork metrics data.
+        db: Database session.
+        current_user: Authenticated user (admin or coach).
+        
+    Returns:
+        BloodworkCreateResponse: Success status and created ID.
+    """
+    await validate_wrestler_access(wrestler_id, current_user, db)
+    
+    # Parse date
+    try:
+        test_date = date.fromisoformat(request.lastTestDate)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail={
+                "error": "VALIDATION_ERROR",
+                "message": "Invalid date format",
+                "details": {"lastTestDate": "Date must be in YYYY-MM-DD format"},
+            },
+        )
+    
+    metrics = BloodworkMetrics(
+        wrestler_id=wrestler_id,
+        hemoglobin=request.hemoglobin,
+        hematocrit=request.hematocrit,
+        testosterone=request.testosteroneLevel,
+        last_test_date=test_date,
+        status=request.status,
+    )
+    db.add(metrics)
+    await db.commit()
+    await db.refresh(metrics)
+    
+    return BloodworkCreateResponse(success=True, id=metrics.id)
 
 
 @router.get(

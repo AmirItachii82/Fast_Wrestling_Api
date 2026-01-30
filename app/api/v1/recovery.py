@@ -3,22 +3,25 @@ Recovery endpoints.
 
 Provides:
 - GET /wrestlers/{wrestlerId}/recovery - Recovery metrics
+- POST /wrestlers/{wrestlerId}/recovery - Create recovery metrics
 - GET /wrestlers/{wrestlerId}/recovery/score - Section score
 - GET /wrestlers/{wrestlerId}/recovery/charts - Recovery charts
 """
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
-from app.models import User
+from app.models import User, RecoveryMetrics
 from app.schemas import (
     RecoveryResponse,
     RecoveryMetricsData,
     RecoveryChartsResponse,
     SectionScoreResponse,
+    RecoveryCreateRequest,
+    RecoveryCreateResponse,
     ErrorResponse,
     TimeSeriesData,
 )
@@ -28,7 +31,7 @@ from app.services.wrestler_service import (
     get_latest_section_score,
 )
 from app.services.time_series_service import get_recovery_series
-from app.utils.dependencies import get_current_user, validate_wrestler_access
+from app.utils.dependencies import get_current_user, validate_wrestler_access, require_admin_or_coach
 
 router = APIRouter()
 
@@ -81,6 +84,50 @@ async def get_recovery_metrics(
             readinessScore=metrics.readiness_score,
         )
     )
+
+
+@router.post(
+    "/{wrestler_id}/recovery",
+    response_model=RecoveryCreateResponse,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Access denied"},
+    },
+)
+async def create_recovery_metrics(
+    wrestler_id: str,
+    request: RecoveryCreateRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(require_admin_or_coach)],
+) -> RecoveryCreateResponse:
+    """
+    Create recovery metrics for a wrestler.
+    
+    Args:
+        wrestler_id: The wrestler ID.
+        request: Recovery metrics data.
+        db: Database session.
+        current_user: Authenticated user (admin or coach).
+        
+    Returns:
+        RecoveryCreateResponse: Success status and created ID.
+    """
+    await validate_wrestler_access(wrestler_id, current_user, db)
+    
+    metrics = RecoveryMetrics(
+        wrestler_id=wrestler_id,
+        sleep_quality=request.sleepQuality,
+        hrv_score=request.hrvScore,
+        fatigue_level=request.fatigueLevel,
+        hydration_level=request.hydrationLevel,
+        readiness_score=request.readinessScore,
+    )
+    db.add(metrics)
+    await db.commit()
+    await db.refresh(metrics)
+    
+    return RecoveryCreateResponse(success=True, id=metrics.id)
 
 
 @router.get(
