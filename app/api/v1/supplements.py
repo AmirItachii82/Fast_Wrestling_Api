@@ -3,22 +3,25 @@ Supplements endpoints.
 
 Provides:
 - GET /wrestlers/{wrestlerId}/supplements - Summary metrics
+- POST /wrestlers/{wrestlerId}/supplements - Create supplements metrics
 - GET /wrestlers/{wrestlerId}/supplements/score - Section score
 - GET /wrestlers/{wrestlerId}/supplements/charts - Charts
 """
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
-from app.models import User
+from app.models import User, SupplementsMetrics
 from app.schemas import (
     SupplementsResponse,
     SupplementsMetricsData,
     SupplementsChartsResponse,
     SectionScoreResponse,
+    SupplementsCreateRequest,
+    SupplementsCreateResponse,
     ErrorResponse,
     TimeSeriesData,
 )
@@ -28,7 +31,7 @@ from app.services.wrestler_service import (
     get_latest_section_score,
 )
 from app.services.time_series_service import get_supplements_series
-from app.utils.dependencies import get_current_user, validate_wrestler_access
+from app.utils.dependencies import get_current_user, validate_wrestler_access, require_admin_or_coach
 
 router = APIRouter()
 
@@ -85,6 +88,52 @@ async def get_supplements_metrics(
             hydrationLiters=metrics.hydration_liters,
         )
     )
+
+
+@router.post(
+    "/{wrestler_id}/supplements",
+    response_model=SupplementsCreateResponse,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Access denied"},
+    },
+)
+async def create_supplements_metrics(
+    wrestler_id: str,
+    request: SupplementsCreateRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(require_admin_or_coach)],
+) -> SupplementsCreateResponse:
+    """
+    Create supplements metrics for a wrestler.
+    
+    Args:
+        wrestler_id: The wrestler ID.
+        request: Supplements metrics data.
+        db: Database session.
+        current_user: Authenticated user (admin or coach).
+        
+    Returns:
+        SupplementsCreateResponse: Success status and created ID.
+    """
+    await validate_wrestler_access(wrestler_id, current_user, db)
+    
+    metrics = SupplementsMetrics(
+        wrestler_id=wrestler_id,
+        adherence_rate=request.adherenceRate,
+        monthly_progress=request.monthlyProgress,
+        performance_corr=request.performanceCorrelation,
+        total_supplements=request.totalSupplements,
+        creatine_daily_grams=request.creatineDailyGrams,
+        protein_daily_grams=request.proteinDailyGrams,
+        hydration_liters=request.hydrationLiters,
+    )
+    db.add(metrics)
+    await db.commit()
+    await db.refresh(metrics)
+    
+    return SupplementsCreateResponse(success=True, id=metrics.id)
 
 
 @router.get(

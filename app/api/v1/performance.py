@@ -3,22 +3,25 @@ Bodybuilding Performance endpoints.
 
 Provides:
 - GET /wrestlers/{wrestlerId}/bodybuilding-performance - Summary metrics
+- POST /wrestlers/{wrestlerId}/bodybuilding-performance - Create metrics
 - GET /wrestlers/{wrestlerId}/bodybuilding-performance/score - Section score
 - GET /wrestlers/{wrestlerId}/bodybuilding-performance/charts - Charts
 """
 
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
-from app.models import User
+from app.models import User, PerformanceMetrics
 from app.schemas import (
     PerformanceResponse,
     PerformanceMetricsData,
     PerformanceChartsResponse,
     SectionScoreResponse,
+    PerformanceCreateRequest,
+    PerformanceCreateResponse,
     ErrorResponse,
     TimeSeriesData,
 )
@@ -36,7 +39,7 @@ from app.services.wrestler_service import (
     get_latest_section_score,
 )
 from app.services.time_series_service import get_performance_series
-from app.utils.dependencies import get_current_user, validate_wrestler_access
+from app.utils.dependencies import get_current_user, validate_wrestler_access, require_admin_or_coach
 
 router = APIRouter()
 
@@ -91,6 +94,51 @@ async def get_performance_metrics_endpoint(
             performanceScore=metrics.performance_score,
         )
     )
+
+
+@router.post(
+    "/{wrestler_id}/bodybuilding-performance",
+    response_model=PerformanceCreateResponse,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Access denied"},
+    },
+)
+async def create_performance_metrics(
+    wrestler_id: str,
+    request: PerformanceCreateRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(require_admin_or_coach)],
+) -> PerformanceCreateResponse:
+    """
+    Create performance metrics for a wrestler.
+    
+    Args:
+        wrestler_id: The wrestler ID.
+        request: Performance metrics data.
+        db: Database session.
+        current_user: Authenticated user (admin or coach).
+        
+    Returns:
+        PerformanceCreateResponse: Success status and created ID.
+    """
+    await validate_wrestler_access(wrestler_id, current_user, db)
+    
+    metrics = PerformanceMetrics(
+        wrestler_id=wrestler_id,
+        bench_max=request.benchPressMax,
+        squat_max=request.squatMax,
+        deadlift_max=request.deadliftMax,
+        vo2max=request.vo2max,
+        body_fat_percent=request.bodyFatPercentage,
+        performance_score=request.performanceScore,
+    )
+    db.add(metrics)
+    await db.commit()
+    await db.refresh(metrics)
+    
+    return PerformanceCreateResponse(success=True, id=metrics.id)
 
 
 @router.get(

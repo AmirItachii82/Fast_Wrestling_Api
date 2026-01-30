@@ -3,8 +3,10 @@ Overview endpoints.
 
 Provides:
 - GET /wrestlers/{wrestlerId}/overview - Overview metrics
+- POST /wrestlers/{wrestlerId}/overview - Create overview metrics
 - GET /wrestlers/{wrestlerId}/overview/score - Section score
 - GET /wrestlers/{wrestlerId}/overview/chart - Radar chart data
+- POST /wrestlers/{wrestlerId}/overview/chart - Create chart data
 """
 
 from typing import Annotated
@@ -13,7 +15,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
-from app.models import User
+from app.models import User, OverviewMetrics, OverviewSeries
 from app.schemas import (
     OverviewResponse,
     OverviewMetricsData,
@@ -21,6 +23,10 @@ from app.schemas import (
     OverviewStatusLabels,
     SectionScoreResponse,
     OverviewChartResponse,
+    OverviewMetricsCreateRequest,
+    OverviewMetricsCreateResponse,
+    OverviewChartCreateRequest,
+    OverviewChartCreateResponse,
     ErrorResponse,
 )
 from app.schemas.api import StatusLabel
@@ -30,7 +36,7 @@ from app.services.wrestler_service import (
 )
 from app.services.time_series_service import get_overview_series
 from app.services.scoring_service import compute_status_label
-from app.utils.dependencies import get_current_user, validate_wrestler_access
+from app.utils.dependencies import get_current_user, validate_wrestler_access, require_admin_or_coach
 
 router = APIRouter()
 
@@ -126,6 +132,53 @@ async def get_overview_metrics(
     )
 
 
+@router.post(
+    "/{wrestler_id}/overview",
+    response_model=OverviewMetricsCreateResponse,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Access denied"},
+    },
+)
+async def create_overview_metrics(
+    wrestler_id: str,
+    request: OverviewMetricsCreateRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(require_admin_or_coach)],
+) -> OverviewMetricsCreateResponse:
+    """
+    Create overview metrics for a wrestler.
+    
+    Args:
+        wrestler_id: The wrestler ID.
+        request: Overview metrics data.
+        db: Database session.
+        current_user: Authenticated user (admin or coach).
+        
+    Returns:
+        OverviewMetricsCreateResponse: Success status and created ID.
+    """
+    await validate_wrestler_access(wrestler_id, current_user, db)
+    
+    metrics = OverviewMetrics(
+        wrestler_id=wrestler_id,
+        overall_score=request.overallScore,
+        msi=request.msi,
+        mes=request.mes,
+        api=request.api,
+        vo2max=request.vo2max,
+        frr=request.frr,
+        acs=request.acs,
+        bos=request.bos,
+    )
+    db.add(metrics)
+    await db.commit()
+    await db.refresh(metrics)
+    
+    return OverviewMetricsCreateResponse(success=True, id=metrics.id)
+
+
 @router.get(
     "/{wrestler_id}/overview/score",
     response_model=SectionScoreResponse,
@@ -209,3 +262,57 @@ async def get_overview_chart(
     values = [item[1] for item in series]
     
     return OverviewChartResponse(labels=labels, values=values)
+
+
+@router.post(
+    "/{wrestler_id}/overview/chart",
+    response_model=OverviewChartCreateResponse,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Access denied"},
+    },
+)
+async def create_overview_chart(
+    wrestler_id: str,
+    request: OverviewChartCreateRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(require_admin_or_coach)],
+) -> OverviewChartCreateResponse:
+    """
+    Create overview radar chart data.
+    
+    Args:
+        wrestler_id: The wrestler ID.
+        request: Chart data with labels and values.
+        db: Database session.
+        current_user: Authenticated user (admin or coach).
+        
+    Returns:
+        OverviewChartCreateResponse: Success status.
+    """
+    await validate_wrestler_access(wrestler_id, current_user, db)
+    
+    # Validate labels and values have same length
+    if len(request.labels) != len(request.values):
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail={
+                "error": "VALIDATION_ERROR",
+                "message": "Labels and values must have the same length",
+                "details": {},
+            },
+        )
+    
+    # Create series entries for each label/value pair
+    for label, value in zip(request.labels, request.values):
+        series = OverviewSeries(
+            wrestler_id=wrestler_id,
+            label=label,
+            value=value,
+        )
+        db.add(series)
+    
+    await db.commit()
+    
+    return OverviewChartCreateResponse(success=True)

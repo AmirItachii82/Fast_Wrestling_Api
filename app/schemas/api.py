@@ -89,6 +89,25 @@ class LogoutResponse(BaseModel):
     success: bool = True
 
 
+class SignupRequest(BaseModel):
+    """User signup request schema."""
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=128)
+    name: str = Field(min_length=1, max_length=255)
+    role: str = Field(default="athlete", pattern="^(admin|coach|athlete)$")
+    wrestlerId: Optional[str] = None
+    teamId: Optional[str] = None
+
+
+class SignupResponse(BaseModel):
+    """User signup response schema."""
+    id: str
+    email: str
+    name: str
+    role: str
+    createdAt: str
+
+
 # ============================================================================
 # Wrestler Schemas
 # ============================================================================
@@ -116,6 +135,46 @@ class WrestlerListResponse(BaseModel):
 class WrestlerSummary(WrestlerBase):
     """Wrestler summary/detail response."""
     status: str  # competition_ready|normal|attention
+
+
+class WrestlerCreateRequest(BaseModel):
+    """Request to create a wrestler."""
+    nameFa: str = Field(min_length=1, max_length=255)
+    nameEn: str = Field(min_length=1, max_length=255)
+    weightClass: int = Field(ge=50, le=150)
+    teamId: Optional[str] = None
+    imageUrl: Optional[str] = Field(default=None, max_length=500)
+    status: str = Field(default="normal", pattern="^(competition_ready|normal|attention)$")
+
+
+class WrestlerCreateResponse(BaseModel):
+    """Response after creating a wrestler."""
+    id: str
+    nameFa: str
+    nameEn: str
+    weightClass: int
+    status: str
+    createdAt: str
+
+
+class WrestlerUpdateRequest(BaseModel):
+    """Request to update a wrestler."""
+    nameFa: Optional[str] = Field(default=None, min_length=1, max_length=255)
+    nameEn: Optional[str] = Field(default=None, min_length=1, max_length=255)
+    weightClass: Optional[int] = Field(default=None, ge=50, le=150)
+    teamId: Optional[str] = None
+    imageUrl: Optional[str] = Field(default=None, max_length=500)
+    status: Optional[str] = Field(default=None, pattern="^(competition_ready|normal|attention)$")
+
+
+class WrestlerUpdateResponse(BaseModel):
+    """Response after updating a wrestler."""
+    success: bool = True
+
+
+class WrestlerDeleteResponse(BaseModel):
+    """Response after deleting a wrestler."""
+    success: bool = True
 
 
 # ============================================================================
@@ -180,6 +239,35 @@ class OverviewChartResponse(BaseModel):
     values: List[float]
 
 
+class OverviewMetricsCreateRequest(BaseModel):
+    """Request to create/update overview metrics."""
+    overallScore: float = Field(ge=0, le=100)
+    msi: float = Field(ge=0, le=100)
+    mes: float = Field(ge=0, le=100)
+    api: float = Field(ge=0, le=1000)
+    vo2max: float = Field(ge=0, le=100)
+    frr: float = Field(ge=0, le=100)
+    acs: float = Field(ge=0, le=100)
+    bos: float = Field(ge=0, le=10)
+
+
+class OverviewMetricsCreateResponse(BaseModel):
+    """Response after creating overview metrics."""
+    success: bool = True
+    id: str
+
+
+class OverviewChartCreateRequest(BaseModel):
+    """Request to create/update overview chart data."""
+    labels: List[str]
+    values: List[float] = Field(min_length=1)
+
+
+class OverviewChartCreateResponse(BaseModel):
+    """Response after creating overview chart data."""
+    success: bool = True
+
+
 # ============================================================================
 # Body Composition Schemas
 # ============================================================================
@@ -218,6 +306,25 @@ class InBodyResponse(BaseModel):
     extracellularWater: float
     visceralFatLevel: float
     phaseAngle: float
+
+
+class BodyCompositionCreateRequest(BaseModel):
+    """Request to create/update body composition metrics."""
+    weight: float = Field(ge=30, le=200)
+    bodyFatPercentage: float = Field(ge=0, le=50)
+    muscleMass: float = Field(ge=20, le=150)
+    bmr: float = Field(ge=1000, le=5000)
+    powerToWeight: float = Field(ge=0, le=5)
+    intracellularWater: Optional[float] = Field(default=None, ge=0, le=100)
+    extracellularWater: Optional[float] = Field(default=None, ge=0, le=100)
+    visceralFatLevel: Optional[float] = Field(default=None, ge=0, le=30)
+    phaseAngle: Optional[float] = Field(default=None, ge=0, le=15)
+
+
+class BodyCompositionCreateResponse(BaseModel):
+    """Response after creating body composition metrics."""
+    success: bool = True
+    id: str
 
 
 # ============================================================================
@@ -259,6 +366,21 @@ class BloodworkChartsResponse(BaseModel):
     """Bloodwork charts response."""
     cbc: CBCPanel
     lipids: LipidsPanel
+
+
+class BloodworkCreateRequest(BaseModel):
+    """Request to create/update bloodwork metrics."""
+    hemoglobin: float = Field(ge=8, le=25)
+    hematocrit: float = Field(ge=20, le=70)
+    testosteroneLevel: float = Field(ge=100, le=1500)
+    lastTestDate: str
+    status: str = Field(default="normal", pattern="^(optimal|normal|attention)$")
+
+
+class BloodworkCreateResponse(BaseModel):
+    """Response after creating bloodwork metrics."""
+    success: bool = True
+    id: str
 
 
 # ============================================================================
@@ -303,6 +425,21 @@ class RecoveryChartsResponse(BaseModel):
     soreness: SorenessData
 
 
+class RecoveryCreateRequest(BaseModel):
+    """Request to create/update recovery metrics."""
+    sleepQuality: float = Field(ge=0, le=100)
+    hrvScore: float = Field(ge=0, le=200)
+    fatigueLevel: float = Field(ge=0, le=100)
+    hydrationLevel: float = Field(ge=0, le=100)
+    readinessScore: float = Field(ge=0, le=100)
+
+
+class RecoveryCreateResponse(BaseModel):
+    """Response after creating recovery metrics."""
+    success: bool = True
+    id: str
+
+
 # ============================================================================
 # Supplements Schemas
 # ============================================================================
@@ -343,6 +480,23 @@ class SupplementsChartsResponse(BaseModel):
     hydration: TimeSeriesData
     performanceCorrelation: TimeSeriesData
     stackOverview: StackOverview
+
+
+class SupplementsCreateRequest(BaseModel):
+    """Request to create/update supplements metrics."""
+    adherenceRate: float = Field(ge=0, le=100)
+    monthlyProgress: str = Field(max_length=20)
+    performanceCorrelation: float = Field(ge=-1, le=1)
+    totalSupplements: int = Field(ge=0, le=50)
+    creatineDailyGrams: float = Field(ge=0, le=20)
+    proteinDailyGrams: float = Field(ge=0, le=500)
+    hydrationLiters: float = Field(ge=0, le=10)
+
+
+class SupplementsCreateResponse(BaseModel):
+    """Response after creating supplements metrics."""
+    success: bool = True
+    id: str
 
 
 # ============================================================================
@@ -414,6 +568,22 @@ class PerformanceChartsResponse(BaseModel):
     cardio: CardioCharts
     analytics: AnalyticsCharts
     bodybuilding: BodybuildingCharts
+
+
+class PerformanceCreateRequest(BaseModel):
+    """Request to create/update performance metrics."""
+    benchPressMax: float = Field(ge=0, le=1000)
+    squatMax: float = Field(ge=0, le=1000)
+    deadliftMax: float = Field(ge=0, le=1000)
+    vo2max: float = Field(ge=0, le=100)
+    bodyFatPercentage: float = Field(ge=0, le=50)
+    performanceScore: float = Field(ge=0, le=100)
+
+
+class PerformanceCreateResponse(BaseModel):
+    """Response after creating performance metrics."""
+    success: bool = True
+    id: str
 
 
 # ============================================================================
@@ -522,6 +692,33 @@ class TeamAthlete(BaseModel):
 class TeamAthletesResponse(BaseModel):
     """Team athletes response."""
     athletes: List[TeamAthlete]
+
+
+class TeamCreateRequest(BaseModel):
+    """Request to create a team."""
+    name: str = Field(min_length=1, max_length=255)
+
+
+class TeamCreateResponse(BaseModel):
+    """Response after creating a team."""
+    id: str
+    name: str
+    createdAt: str
+
+
+class TeamUpdateRequest(BaseModel):
+    """Request to update a team."""
+    name: Optional[str] = Field(default=None, min_length=1, max_length=255)
+
+
+class TeamUpdateResponse(BaseModel):
+    """Response after updating a team."""
+    success: bool = True
+
+
+class TeamDeleteResponse(BaseModel):
+    """Response after deleting a team."""
+    success: bool = True
 
 
 # ============================================================================

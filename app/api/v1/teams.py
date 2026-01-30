@@ -2,8 +2,11 @@
 Team endpoints.
 
 Provides:
+- POST /teams - Create a team
 - GET /teams/{teamId}/stats - Team stats
 - GET /teams/{teamId}/athletes - Team roster cards
+- PUT /teams/{teamId} - Update a team
+- DELETE /teams/{teamId} - Delete a team
 """
 
 from typing import Annotated, List
@@ -17,6 +20,11 @@ from app.models import User, UserRole, Team, Wrestler, WrestlerStatus, SectionSc
 from app.schemas import (
     TeamStatsResponse,
     TeamAthletesResponse,
+    TeamCreateRequest,
+    TeamCreateResponse,
+    TeamUpdateRequest,
+    TeamUpdateResponse,
+    TeamDeleteResponse,
     ErrorResponse,
 )
 from app.schemas.api import TeamAthlete, AthleteInsight
@@ -74,6 +82,57 @@ async def validate_team_access(
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
         detail="Athletes cannot access team data",
+    )
+
+
+async def require_admin(current_user: User = Depends(get_current_user)) -> User:
+    """Require admin role."""
+    if current_user.role != UserRole.ADMIN:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={
+                "error": "ACCESS_DENIED",
+                "message": "Admin access required",
+                "details": {},
+            },
+        )
+    return current_user
+
+
+@router.post(
+    "",
+    response_model=TeamCreateResponse,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Access denied"},
+    },
+)
+async def create_team(
+    request: TeamCreateRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(require_admin)],
+) -> TeamCreateResponse:
+    """
+    Create a new team (admin only).
+    
+    Args:
+        request: Team creation data.
+        db: Database session.
+        current_user: Authenticated admin user.
+        
+    Returns:
+        TeamCreateResponse: Created team info.
+    """
+    team = Team(name=request.name)
+    db.add(team)
+    await db.commit()
+    await db.refresh(team)
+    
+    return TeamCreateResponse(
+        id=team.id,
+        name=team.name,
+        createdAt=team.created_at.strftime("%Y-%m-%dT%H:%M:%SZ"),
     )
 
 
@@ -210,3 +269,95 @@ async def get_team_athletes(
         ))
     
     return TeamAthletesResponse(athletes=athletes)
+
+
+@router.put(
+    "/{team_id}",
+    response_model=TeamUpdateResponse,
+    responses={
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Access denied"},
+        404: {"model": ErrorResponse, "description": "Team not found"},
+    },
+)
+async def update_team(
+    team_id: str,
+    request: TeamUpdateRequest,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(require_admin)],
+) -> TeamUpdateResponse:
+    """
+    Update a team (admin only).
+    
+    Args:
+        team_id: The team ID.
+        request: Team update data.
+        db: Database session.
+        current_user: Authenticated admin user.
+        
+    Returns:
+        TeamUpdateResponse: Success status.
+    """
+    result = await db.execute(select(Team).where(Team.id == team_id))
+    team = result.scalar_one_or_none()
+    
+    if not team:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "error": "NOT_FOUND",
+                "message": "Team not found",
+                "details": {"team_id": team_id},
+            },
+        )
+    
+    if request.name is not None:
+        team.name = request.name
+    
+    await db.commit()
+    
+    return TeamUpdateResponse(success=True)
+
+
+@router.delete(
+    "/{team_id}",
+    response_model=TeamDeleteResponse,
+    responses={
+        401: {"model": ErrorResponse, "description": "Not authenticated"},
+        403: {"model": ErrorResponse, "description": "Access denied"},
+        404: {"model": ErrorResponse, "description": "Team not found"},
+    },
+)
+async def delete_team(
+    team_id: str,
+    db: Annotated[AsyncSession, Depends(get_db)],
+    current_user: Annotated[User, Depends(require_admin)],
+) -> TeamDeleteResponse:
+    """
+    Delete a team (admin only).
+    
+    Args:
+        team_id: The team ID.
+        db: Database session.
+        current_user: Authenticated admin user.
+        
+    Returns:
+        TeamDeleteResponse: Success status.
+    """
+    result = await db.execute(select(Team).where(Team.id == team_id))
+    team = result.scalar_one_or_none()
+    
+    if not team:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={
+                "error": "NOT_FOUND",
+                "message": "Team not found",
+                "details": {"team_id": team_id},
+            },
+        )
+    
+    await db.delete(team)
+    await db.commit()
+    
+    return TeamDeleteResponse(success=True)
