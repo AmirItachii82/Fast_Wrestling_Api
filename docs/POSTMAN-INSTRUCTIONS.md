@@ -156,10 +156,65 @@ Wrestling Dashboard API
 │   ├── Chart Insight
 │   ├── Advanced Insight
 │   └── Generate Training Program
-└── Scores
-    ├── Overall Score
-    ├── Domain Scores
-    └── Score Explanation
+├── Scores
+│   ├── Overall Score
+│   ├── Domain Scores
+│   └── Score Explanation
+└── Legacy Data
+    ├── List Athletes
+    ├── List Sessions
+    ├── List Metrics
+    ├── Body Composition (Freestyle)
+    ├── Body Composition (Greco-Roman)
+    ├── Chestbelt Heart Rate
+    ├── Fitness
+    └── Urion Analysis
+```
+
+## Legacy Data Endpoints
+
+The Legacy Data folder contains endpoints for accessing data from the original Fittechno database.
+
+### Key Features
+
+- **Session Date Resolution**: All responses include session dates automatically
+- **Filtering**: Filter by athlete name, metric name, session ID, and date range
+- **Pagination**: All endpoints support pagination with `page` and `perPage` parameters
+
+### Example: List Body Composition (Freestyle)
+
+1. Go to **Legacy Data > Body Composition (Freestyle)**
+2. Check/modify query parameters:
+   - `athleteName`: Filter by athlete (partial match)
+   - `metricName`: Filter by metric (partial match)
+   - `sessionId`: Filter by exact session
+   - `dateFrom`: Start date (YYYY-MM-DD)
+   - `dateTo`: End date (YYYY-MM-DD)
+3. Click **Send**
+
+**Example Response:**
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "sessionId": "1001",
+      "athleteName": "حسن یزدانی",
+      "metricName": "Weight",
+      "nvalue": 86.5,
+      "tvalue": null,
+      "sessionDate": "2025-01-15",
+      "sessionDateShamsi": "1403-10-26"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "perPage": 50,
+    "total": 100,
+    "totalPages": 2
+  },
+  "style": "freestyle"
+}
 ```
 
 ## Tips

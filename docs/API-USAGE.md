@@ -2,6 +2,26 @@
 
 This document provides detailed examples for using the Wrestling Dashboard Backend API.
 
+## Table of Contents
+
+- [Authentication](#authentication)
+- [Wrestlers](#wrestlers)
+- [Overview Metrics](#overview-metrics)
+- [Body Composition](#body-composition)
+- [Bloodwork](#bloodwork)
+- [Recovery](#recovery)
+- [Supplements](#supplements)
+- [Bodybuilding Performance](#bodybuilding-performance)
+- [Training Program](#training-program)
+- [Calendar](#calendar)
+- [Teams](#teams)
+- [AI Endpoints](#ai-endpoints)
+- [Scoring](#scoring)
+- [Legacy Data Endpoints](#legacy-data-endpoints)
+- [Error Responses](#error-responses)
+
+---
+
 ## Authentication
 
 ### Login
@@ -370,6 +390,201 @@ curl http://localhost:8000/api/v1/wrestlers/{wrestlerId}/scores/domains \
 curl http://localhost:8000/api/v1/wrestlers/{wrestlerId}/scores/explanation \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
 ```
+
+---
+
+## Legacy Data Endpoints
+
+These endpoints provide access to measurement data from the legacy Fittechno database. All responses include session dates automatically resolved via joins with the `session_time` table.
+
+### Common Query Parameters
+
+All legacy data endpoints support these filter parameters:
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `page` | int | Page number (default: 1) |
+| `perPage` | int | Items per page (1-100, default: 50) |
+| `athleteName` | string | Filter by athlete name (partial match) |
+| `metricName` | string | Filter by metric name (partial match) |
+| `sessionId` | string | Filter by exact session ID |
+| `dateFrom` | string | Filter from date (YYYY-MM-DD) |
+| `dateTo` | string | Filter to date (YYYY-MM-DD) |
+
+### List Legacy Athletes
+
+```bash
+curl "http://localhost:8000/api/v1/data/athletes?page=1&perPage=50" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+**Response:**
+```json
+{
+  "athletes": [
+    {
+      "id": 1,
+      "athleteName": "حسن یزدانی",
+      "field": "freestyle",
+      "name": "Hassan Yazdani",
+      "createdAt": "2025-01-15T09:30:00"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "perPage": 50,
+    "total": 100,
+    "totalPages": 2
+  }
+}
+```
+
+### List Session Times
+
+```bash
+curl "http://localhost:8000/api/v1/data/sessions?athleteName=یزدانی&dateFrom=2025-01-01" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+**Response:**
+```json
+{
+  "sessions": [
+    {
+      "sessionId": 1001,
+      "athleteId": 1,
+      "athleteName": "حسن یزدانی",
+      "miladiDate": "2025-01-15",
+      "shamsiDate": "1403-10-26",
+      "startTime": "09:30",
+      "testCategory": "body_composition",
+      "createdAt": "2025-01-15T09:30:00"
+    }
+  ],
+  "pagination": {...}
+}
+```
+
+### List Metric Definitions
+
+```bash
+curl "http://localhost:8000/api/v1/data/metrics?category=body_composition" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+### List Body Composition (Freestyle)
+
+```bash
+curl "http://localhost:8000/api/v1/data/body-composition/freestyle?athleteName=یزدانی&metricName=Weight" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+**Response:**
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "sessionId": "1001",
+      "athleteName": "حسن یزدانی",
+      "metricName": "Weight",
+      "nvalue": 86.5,
+      "tvalue": null,
+      "sessionDate": "2025-01-15",
+      "sessionDateShamsi": "1403-10-26"
+    }
+  ],
+  "pagination": {...},
+  "style": "freestyle"
+}
+```
+
+### List Body Composition (Greco-Roman)
+
+```bash
+curl "http://localhost:8000/api/v1/data/body-composition/greco-roman?athleteName=کریمی" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+### List Chestbelt Heart Rate Data
+
+```bash
+curl "http://localhost:8000/api/v1/data/chestbelt-hr?sessionId=1001" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+**Response:**
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "sessionId": "1001",
+      "athleteName": "حسن یزدانی",
+      "metricName": "MaxHR",
+      "nvalue": 185.0,
+      "tvalue": null,
+      "sessionDate": "2025-01-15",
+      "sessionDateShamsi": "1403-10-26"
+    }
+  ],
+  "pagination": {...}
+}
+```
+
+### List Fitness Data
+
+```bash
+curl "http://localhost:8000/api/v1/data/fitness?metricName=VO2Max&dateFrom=2025-01-01&dateTo=2025-01-31" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+**Response:**
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "sessionId": "1001",
+      "athleteName": "حسن یزدانی",
+      "metricName": "VO2Max",
+      "metricMethod": "Treadmill",
+      "value": 55.5,
+      "sessionDate": "2025-01-15",
+      "sessionDateShamsi": "1403-10-26"
+    }
+  ],
+  "pagination": {...}
+}
+```
+
+### List Urion Analysis Data
+
+```bash
+curl "http://localhost:8000/api/v1/data/urion-analysis?athleteName=یزدانی" \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN"
+```
+
+### Session Date Resolution Explained
+
+Every measurement response includes the session date resolved automatically:
+
+1. **How it works**: The API joins measurement tables with `session_time` using `session_id`
+2. **Both date formats**: Responses include both Gregorian (`sessionDate`) and Persian (`sessionDateShamsi`) dates
+3. **No manual joins**: The client doesn't need to make separate queries to resolve dates
+
+**Example SQL Query (internally):**
+```sql
+SELECT 
+    bc.id, bc.session_id, bc.athlete_name, bc.metric_name, bc.nvalue,
+    st.miladi_date AS session_date,
+    st.shamsi_date AS session_date_shamsi
+FROM body_composition_fs bc
+LEFT JOIN session_time st ON bc.session_id::bigint = st.session_id
+WHERE bc.athlete_name ILIKE '%یزدانی%';
+```
+
+---
 
 ## Error Responses
 
