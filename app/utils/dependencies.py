@@ -7,7 +7,7 @@ This module provides FastAPI dependencies for:
 - Wrestler access validation
 """
 
-from typing import Annotated, List, Optional
+from typing import Annotated, List
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials

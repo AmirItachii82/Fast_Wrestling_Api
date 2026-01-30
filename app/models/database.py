@@ -18,7 +18,7 @@ from typing import List, Optional
 import uuid
 
 from sqlmodel import Field, Relationship, SQLModel, Column, Index
-from sqlalchemy import JSON, Text, UniqueConstraint
+from sqlalchemy import Text, UniqueConstraint
 
 
 class UserRole(str, Enum):
