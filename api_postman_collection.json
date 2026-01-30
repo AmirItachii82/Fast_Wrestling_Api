@@ -1,0 +1,1167 @@
+{
+  "info": {
+    "_postman_id": "wrestling-database-simple-api",
+    "name": "Wrestling Database Simple API",
+    "description": "Simple API collection for Wrestling Dashboard database tables. Each endpoint returns all rows by default and supports filtering on any column via query parameters.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost/api"
+    }
+  ],
+  "item": [
+    {
+      "name": "Legacy Fittechno Tables",
+      "item": [
+        {
+          "name": "Athlete - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/athlete",
+              "host": ["{{base_url}}"],
+              "path": ["athlete"]
+            },
+            "description": "Retrieve all athlete records from the legacy Fittechno database"
+          }
+        },
+        {
+          "name": "Athlete - Filter by Field",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/athlete?field=freestyle",
+              "host": ["{{base_url}}"],
+              "path": ["athlete"],
+              "query": [
+                {"key": "field", "value": "freestyle"}
+              ]
+            },
+            "description": "Filter athletes by wrestling style (freestyle/greco-roman)"
+          }
+        },
+        {
+          "name": "Athlete - Filter by Name",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/athlete?athlete_name=حسن یزدانی",
+              "host": ["{{base_url}}"],
+              "path": ["athlete"],
+              "query": [
+                {"key": "athlete_name", "value": "حسن یزدانی"}
+              ]
+            },
+            "description": "Filter athletes by name"
+          }
+        },
+        {
+          "name": "Session Time - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/session_time",
+              "host": ["{{base_url}}"],
+              "path": ["session_time"]
+            },
+            "description": "Retrieve all session time records"
+          }
+        },
+        {
+          "name": "Session Time - Filter by Athlete ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/session_time?athlete_id=1",
+              "host": ["{{base_url}}"],
+              "path": ["session_time"],
+              "query": [
+                {"key": "athlete_id", "value": "1"}
+              ]
+            },
+            "description": "Filter session times by athlete ID"
+          }
+        },
+        {
+          "name": "Session Time - Filter by Date and Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/session_time?miladi_date=2025-01-15&test_category=body_composition",
+              "host": ["{{base_url}}"],
+              "path": ["session_time"],
+              "query": [
+                {"key": "miladi_date", "value": "2025-01-15"},
+                {"key": "test_category", "value": "body_composition"}
+              ]
+            },
+            "description": "Filter session times by date and test category"
+          }
+        },
+        {
+          "name": "Metric - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/metric",
+              "host": ["{{base_url}}"],
+              "path": ["metric"]
+            },
+            "description": "Retrieve all metric definitions"
+          }
+        },
+        {
+          "name": "Metric - Filter by Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/metric?category=body_composition",
+              "host": ["{{base_url}}"],
+              "path": ["metric"],
+              "query": [
+                {"key": "category", "value": "body_composition"}
+              ]
+            },
+            "description": "Filter metrics by category"
+          }
+        },
+        {
+          "name": "Body Composition FS - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/body_composition_fs",
+              "host": ["{{base_url}}"],
+              "path": ["body_composition_fs"]
+            },
+            "description": "Retrieve all freestyle body composition measurements"
+          }
+        },
+        {
+          "name": "Body Composition FS - Filter by Athlete",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/body_composition_fs?athlete_name=حسن یزدانی",
+              "host": ["{{base_url}}"],
+              "path": ["body_composition_fs"],
+              "query": [
+                {"key": "athlete_name", "value": "حسن یزدانی"}
+              ]
+            },
+            "description": "Filter freestyle body composition by athlete name"
+          }
+        },
+        {
+          "name": "Body Composition FS - Filter by Athlete and Metric",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/body_composition_fs?athlete_name=حسن یزدانی&metric_name=Weight",
+              "host": ["{{base_url}}"],
+              "path": ["body_composition_fs"],
+              "query": [
+                {"key": "athlete_name", "value": "حسن یزدانی"},
+                {"key": "metric_name", "value": "Weight"}
+              ]
+            },
+            "description": "Filter freestyle body composition by athlete and metric"
+          }
+        },
+        {
+          "name": "Body Composition GR - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/body_composition_gr",
+              "host": ["{{base_url}}"],
+              "path": ["body_composition_gr"]
+            },
+            "description": "Retrieve all Greco-Roman body composition measurements"
+          }
+        },
+        {
+          "name": "Body Composition GR - Filter by Athlete",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/body_composition_gr?athlete_name=محمد کریمی",
+              "host": ["{{base_url}}"],
+              "path": ["body_composition_gr"],
+              "query": [
+                {"key": "athlete_name", "value": "محمد کریمی"}
+              ]
+            },
+            "description": "Filter Greco-Roman body composition by athlete name"
+          }
+        },
+        {
+          "name": "Chestbelt HR GR - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/chestbelt_hr_gr",
+              "host": ["{{base_url}}"],
+              "path": ["chestbelt_hr_gr"]
+            },
+            "description": "Retrieve all Greco-Roman chestbelt heart rate measurements"
+          }
+        },
+        {
+          "name": "Chestbelt HR GR - Filter by Session",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/chestbelt_hr_gr?session_id=1001",
+              "host": ["{{base_url}}"],
+              "path": ["chestbelt_hr_gr"],
+              "query": [
+                {"key": "session_id", "value": "1001"}
+              ]
+            },
+            "description": "Filter chestbelt heart rate by session ID"
+          }
+        },
+        {
+          "name": "Chestbelt HR GR - Filter by Metric",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/chestbelt_hr_gr?metric_name=MaxHR",
+              "host": ["{{base_url}}"],
+              "path": ["chestbelt_hr_gr"],
+              "query": [
+                {"key": "metric_name", "value": "MaxHR"}
+              ]
+            },
+            "description": "Filter chestbelt heart rate by metric name"
+          }
+        },
+        {
+          "name": "Fitness FS - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/fitness_fs",
+              "host": ["{{base_url}}"],
+              "path": ["fitness_fs"]
+            },
+            "description": "Retrieve all freestyle fitness measurements"
+          }
+        },
+        {
+          "name": "Fitness FS - Filter by Metric",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/fitness_fs?metric_name=VO2Max",
+              "host": ["{{base_url}}"],
+              "path": ["fitness_fs"],
+              "query": [
+                {"key": "metric_name", "value": "VO2Max"}
+              ]
+            },
+            "description": "Filter fitness measurements by metric name"
+          }
+        },
+        {
+          "name": "Fitness FS - Filter by Athlete and Metric",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/fitness_fs?athlete_name=حسن یزدانی&metric_name=VO2Max",
+              "host": ["{{base_url}}"],
+              "path": ["fitness_fs"],
+              "query": [
+                {"key": "athlete_name", "value": "حسن یزدانی"},
+                {"key": "metric_name", "value": "VO2Max"}
+              ]
+            },
+            "description": "Filter fitness by athlete and metric"
+          }
+        },
+        {
+          "name": "Urion Analysis GR - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/urion_analysis_gr",
+              "host": ["{{base_url}}"],
+              "path": ["urion_analysis_gr"]
+            },
+            "description": "Retrieve all Greco-Roman urion analysis measurements"
+          }
+        },
+        {
+          "name": "Urion Analysis GR - Filter by Athlete",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/urion_analysis_gr?athlete_name=حسن یزدانی",
+              "host": ["{{base_url}}"],
+              "path": ["urion_analysis_gr"],
+              "query": [
+                {"key": "athlete_name", "value": "حسن یزدانی"}
+              ]
+            },
+            "description": "Filter urion analysis by athlete name"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Teams",
+      "item": [
+        {
+          "name": "Teams - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teams",
+              "host": ["{{base_url}}"],
+              "path": ["teams"]
+            },
+            "description": "Retrieve all team records"
+          }
+        },
+        {
+          "name": "Teams - Filter by Name",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/teams?name=Team Iran",
+              "host": ["{{base_url}}"],
+              "path": ["teams"],
+              "query": [
+                {"key": "name", "value": "Team Iran"}
+              ]
+            },
+            "description": "Filter teams by name"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wrestlers",
+      "item": [
+        {
+          "name": "Wrestlers - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers"]
+            },
+            "description": "Retrieve all wrestler profiles"
+          }
+        },
+        {
+          "name": "Wrestlers - Filter by Weight Class",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers?weight_class=86",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers"],
+              "query": [
+                {"key": "weight_class", "value": "86"}
+              ]
+            },
+            "description": "Filter wrestlers by weight class"
+          }
+        },
+        {
+          "name": "Wrestlers - Filter by Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers?status=competition_ready",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers"],
+              "query": [
+                {"key": "status", "value": "competition_ready"}
+              ]
+            },
+            "description": "Filter wrestlers by status"
+          }
+        },
+        {
+          "name": "Wrestlers - Filter by Team and Weight",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/wrestlers?team_id=550e8400-e29b-41d4-a716-446655440000&weight_class=86",
+              "host": ["{{base_url}}"],
+              "path": ["wrestlers"],
+              "query": [
+                {"key": "team_id", "value": "550e8400-e29b-41d4-a716-446655440000"},
+                {"key": "weight_class", "value": "86"}
+              ]
+            },
+            "description": "Filter wrestlers by team and weight class"
+          }
+        }
+      ]
+    },
+    {
+      "name": "API Users",
+      "item": [
+        {
+          "name": "API Users - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api_users",
+              "host": ["{{base_url}}"],
+              "path": ["api_users"]
+            },
+            "description": "Retrieve all API user accounts"
+          }
+        },
+        {
+          "name": "API Users - Filter by Role",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api_users?role=coach",
+              "host": ["{{base_url}}"],
+              "path": ["api_users"],
+              "query": [
+                {"key": "role", "value": "coach"}
+              ]
+            },
+            "description": "Filter API users by role"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Token Blacklist",
+      "item": [
+        {
+          "name": "Token Blacklist - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/token_blacklist",
+              "host": ["{{base_url}}"],
+              "path": ["token_blacklist"]
+            },
+            "description": "Retrieve all blacklisted JWT tokens"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Overview Metrics",
+      "item": [
+        {
+          "name": "Overview Metrics - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/overview_metrics",
+              "host": ["{{base_url}}"],
+              "path": ["overview_metrics"]
+            },
+            "description": "Retrieve all wrestler overview metrics"
+          }
+        },
+        {
+          "name": "Overview Metrics - Filter by Wrestler",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/overview_metrics?wrestler_id=660e8400-e29b-41d4-a716-446655440001",
+              "host": ["{{base_url}}"],
+              "path": ["overview_metrics"],
+              "query": [
+                {"key": "wrestler_id", "value": "660e8400-e29b-41d4-a716-446655440001"}
+              ]
+            },
+            "description": "Filter overview metrics by wrestler ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Overview Series",
+      "item": [
+        {
+          "name": "Overview Series - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/overview_series",
+              "host": ["{{base_url}}"],
+              "path": ["overview_series"]
+            },
+            "description": "Retrieve all wrestler overview time series data"
+          }
+        },
+        {
+          "name": "Overview Series - Filter by Wrestler",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/overview_series?wrestler_id=660e8400-e29b-41d4-a716-446655440001",
+              "host": ["{{base_url}}"],
+              "path": ["overview_series"],
+              "query": [
+                {"key": "wrestler_id", "value": "660e8400-e29b-41d4-a716-446655440001"}
+              ]
+            },
+            "description": "Filter overview series by wrestler ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Body Composition Metrics",
+      "item": [
+        {
+          "name": "Body Composition Metrics - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/body_composition_metrics",
+              "host": ["{{base_url}}"],
+              "path": ["body_composition_metrics"]
+            },
+            "description": "Retrieve all wrestler body composition metrics"
+          }
+        },
+        {
+          "name": "Body Composition Metrics - Filter by Wrestler",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/body_composition_metrics?wrestler_id=660e8400-e29b-41d4-a716-446655440001",
+              "host": ["{{base_url}}"],
+              "path": ["body_composition_metrics"],
+              "query": [
+                {"key": "wrestler_id", "value": "660e8400-e29b-41d4-a716-446655440001"}
+              ]
+            },
+            "description": "Filter body composition metrics by wrestler ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Body Composition Series",
+      "item": [
+        {
+          "name": "Body Composition Series - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/body_composition_series",
+              "host": ["{{base_url}}"],
+              "path": ["body_composition_series"]
+            },
+            "description": "Retrieve all wrestler body composition time series data"
+          }
+        },
+        {
+          "name": "Body Composition Series - Filter by Wrestler and Metric",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/body_composition_series?wrestler_id=660e8400-e29b-41d4-a716-446655440001&metric_name=weight",
+              "host": ["{{base_url}}"],
+              "path": ["body_composition_series"],
+              "query": [
+                {"key": "wrestler_id", "value": "660e8400-e29b-41d4-a716-446655440001"},
+                {"key": "metric_name", "value": "weight"}
+              ]
+            },
+            "description": "Filter body composition series by wrestler and metric"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bloodwork Metrics",
+      "item": [
+        {
+          "name": "Bloodwork Metrics - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/bloodwork_metrics",
+              "host": ["{{base_url}}"],
+              "path": ["bloodwork_metrics"]
+            },
+            "description": "Retrieve all wrestler bloodwork metrics"
+          }
+        },
+        {
+          "name": "Bloodwork Metrics - Filter by Wrestler",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/bloodwork_metrics?wrestler_id=660e8400-e29b-41d4-a716-446655440001",
+              "host": ["{{base_url}}"],
+              "path": ["bloodwork_metrics"],
+              "query": [
+                {"key": "wrestler_id", "value": "660e8400-e29b-41d4-a716-446655440001"}
+              ]
+            },
+            "description": "Filter bloodwork metrics by wrestler ID"
+          }
+        },
+        {
+          "name": "Bloodwork Metrics - Filter by Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/bloodwork_metrics?status=optimal",
+              "host": ["{{base_url}}"],
+              "path": ["bloodwork_metrics"],
+              "query": [
+                {"key": "status", "value": "optimal"}
+              ]
+            },
+            "description": "Filter bloodwork metrics by status"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Bloodwork Series",
+      "item": [
+        {
+          "name": "Bloodwork Series - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/bloodwork_series",
+              "host": ["{{base_url}}"],
+              "path": ["bloodwork_series"]
+            },
+            "description": "Retrieve all wrestler bloodwork time series data"
+          }
+        },
+        {
+          "name": "Bloodwork Series - Filter by Wrestler and Panel",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/bloodwork_series?wrestler_id=660e8400-e29b-41d4-a716-446655440001&panel=cbc",
+              "host": ["{{base_url}}"],
+              "path": ["bloodwork_series"],
+              "query": [
+                {"key": "wrestler_id", "value": "660e8400-e29b-41d4-a716-446655440001"},
+                {"key": "panel", "value": "cbc"}
+              ]
+            },
+            "description": "Filter bloodwork series by wrestler and panel"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Recovery Metrics",
+      "item": [
+        {
+          "name": "Recovery Metrics - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/recovery_metrics",
+              "host": ["{{base_url}}"],
+              "path": ["recovery_metrics"]
+            },
+            "description": "Retrieve all wrestler recovery metrics"
+          }
+        },
+        {
+          "name": "Recovery Metrics - Filter by Wrestler",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/recovery_metrics?wrestler_id=660e8400-e29b-41d4-a716-446655440001",
+              "host": ["{{base_url}}"],
+              "path": ["recovery_metrics"],
+              "query": [
+                {"key": "wrestler_id", "value": "660e8400-e29b-41d4-a716-446655440001"}
+              ]
+            },
+            "description": "Filter recovery metrics by wrestler ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Recovery Series",
+      "item": [
+        {
+          "name": "Recovery Series - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/recovery_series",
+              "host": ["{{base_url}}"],
+              "path": ["recovery_series"]
+            },
+            "description": "Retrieve all wrestler recovery time series data"
+          }
+        },
+        {
+          "name": "Recovery Series - Filter by Wrestler",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/recovery_series?wrestler_id=660e8400-e29b-41d4-a716-446655440001",
+              "host": ["{{base_url}}"],
+              "path": ["recovery_series"],
+              "query": [
+                {"key": "wrestler_id", "value": "660e8400-e29b-41d4-a716-446655440001"}
+              ]
+            },
+            "description": "Filter recovery series by wrestler ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Supplements Metrics",
+      "item": [
+        {
+          "name": "Supplements Metrics - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/supplements_metrics",
+              "host": ["{{base_url}}"],
+              "path": ["supplements_metrics"]
+            },
+            "description": "Retrieve all wrestler supplements metrics"
+          }
+        },
+        {
+          "name": "Supplements Metrics - Filter by Wrestler",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/supplements_metrics?wrestler_id=660e8400-e29b-41d4-a716-446655440001",
+              "host": ["{{base_url}}"],
+              "path": ["supplements_metrics"],
+              "query": [
+                {"key": "wrestler_id", "value": "660e8400-e29b-41d4-a716-446655440001"}
+              ]
+            },
+            "description": "Filter supplements metrics by wrestler ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Supplements Series",
+      "item": [
+        {
+          "name": "Supplements Series - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/supplements_series",
+              "host": ["{{base_url}}"],
+              "path": ["supplements_series"]
+            },
+            "description": "Retrieve all wrestler supplements time series data"
+          }
+        },
+        {
+          "name": "Supplements Series - Filter by Wrestler",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/supplements_series?wrestler_id=660e8400-e29b-41d4-a716-446655440001",
+              "host": ["{{base_url}}"],
+              "path": ["supplements_series"],
+              "query": [
+                {"key": "wrestler_id", "value": "660e8400-e29b-41d4-a716-446655440001"}
+              ]
+            },
+            "description": "Filter supplements series by wrestler ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Performance Metrics",
+      "item": [
+        {
+          "name": "Performance Metrics - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/performance_metrics",
+              "host": ["{{base_url}}"],
+              "path": ["performance_metrics"]
+            },
+            "description": "Retrieve all wrestler performance metrics"
+          }
+        },
+        {
+          "name": "Performance Metrics - Filter by Wrestler",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/performance_metrics?wrestler_id=660e8400-e29b-41d4-a716-446655440001",
+              "host": ["{{base_url}}"],
+              "path": ["performance_metrics"],
+              "query": [
+                {"key": "wrestler_id", "value": "660e8400-e29b-41d4-a716-446655440001"}
+              ]
+            },
+            "description": "Filter performance metrics by wrestler ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Performance Series",
+      "item": [
+        {
+          "name": "Performance Series - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/performance_series",
+              "host": ["{{base_url}}"],
+              "path": ["performance_series"]
+            },
+            "description": "Retrieve all wrestler performance time series data"
+          }
+        },
+        {
+          "name": "Performance Series - Filter by Wrestler",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/performance_series?wrestler_id=660e8400-e29b-41d4-a716-446655440001",
+              "host": ["{{base_url}}"],
+              "path": ["performance_series"],
+              "query": [
+                {"key": "wrestler_id", "value": "660e8400-e29b-41d4-a716-446655440001"}
+              ]
+            },
+            "description": "Filter performance series by wrestler ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Training Programs",
+      "item": [
+        {
+          "name": "Training Programs - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/training_programs",
+              "host": ["{{base_url}}"],
+              "path": ["training_programs"]
+            },
+            "description": "Retrieve all training program records"
+          }
+        },
+        {
+          "name": "Training Programs - Filter by Wrestler",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/training_programs?wrestler_id=660e8400-e29b-41d4-a716-446655440001",
+              "host": ["{{base_url}}"],
+              "path": ["training_programs"],
+              "query": [
+                {"key": "wrestler_id", "value": "660e8400-e29b-41d4-a716-446655440001"}
+              ]
+            },
+            "description": "Filter training programs by wrestler ID"
+          }
+        },
+        {
+          "name": "Training Programs - Filter by Date",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/training_programs?date=2025-01-15",
+              "host": ["{{base_url}}"],
+              "path": ["training_programs"],
+              "query": [
+                {"key": "date", "value": "2025-01-15"}
+              ]
+            },
+            "description": "Filter training programs by date"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Training Program Blocks",
+      "item": [
+        {
+          "name": "Training Program Blocks - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/training_program_blocks",
+              "host": ["{{base_url}}"],
+              "path": ["training_program_blocks"]
+            },
+            "description": "Retrieve all training program exercise blocks"
+          }
+        },
+        {
+          "name": "Training Program Blocks - Filter by Program",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/training_program_blocks?program_id=660e8400-e29b-41d4-a716-446655440016",
+              "host": ["{{base_url}}"],
+              "path": ["training_program_blocks"],
+              "query": [
+                {"key": "program_id", "value": "660e8400-e29b-41d4-a716-446655440016"}
+              ]
+            },
+            "description": "Filter training program blocks by program ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Training Program AI Recommendations",
+      "item": [
+        {
+          "name": "Training Program AI Recommendations - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/training_program_ai_recommendations",
+              "host": ["{{base_url}}"],
+              "path": ["training_program_ai_recommendations"]
+            },
+            "description": "Retrieve all AI-generated training recommendations"
+          }
+        },
+        {
+          "name": "Training Program AI Recommendations - Filter by Program",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/training_program_ai_recommendations?program_id=660e8400-e29b-41d4-a716-446655440016",
+              "host": ["{{base_url}}"],
+              "path": ["training_program_ai_recommendations"],
+              "query": [
+                {"key": "program_id", "value": "660e8400-e29b-41d4-a716-446655440016"}
+              ]
+            },
+            "description": "Filter AI recommendations by program ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Chart Insights",
+      "item": [
+        {
+          "name": "AI Chart Insights - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ai_chart_insights",
+              "host": ["{{base_url}}"],
+              "path": ["ai_chart_insights"]
+            },
+            "description": "Retrieve all AI-generated chart insights"
+          }
+        },
+        {
+          "name": "AI Chart Insights - Filter by Wrestler",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ai_chart_insights?wrestler_id=660e8400-e29b-41d4-a716-446655440001",
+              "host": ["{{base_url}}"],
+              "path": ["ai_chart_insights"],
+              "query": [
+                {"key": "wrestler_id", "value": "660e8400-e29b-41d4-a716-446655440001"}
+              ]
+            },
+            "description": "Filter AI chart insights by wrestler ID"
+          }
+        },
+        {
+          "name": "AI Chart Insights - Filter by Chart",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/ai_chart_insights?chart_id=overview-radar",
+              "host": ["{{base_url}}"],
+              "path": ["ai_chart_insights"],
+              "query": [
+                {"key": "chart_id", "value": "overview-radar"}
+              ]
+            },
+            "description": "Filter AI chart insights by chart ID"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Section Scores",
+      "item": [
+        {
+          "name": "Section Scores - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/section_scores",
+              "host": ["{{base_url}}"],
+              "path": ["section_scores"]
+            },
+            "description": "Retrieve all wrestler section scores"
+          }
+        },
+        {
+          "name": "Section Scores - Filter by Wrestler",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/section_scores?wrestler_id=660e8400-e29b-41d4-a716-446655440001",
+              "host": ["{{base_url}}"],
+              "path": ["section_scores"],
+              "query": [
+                {"key": "wrestler_id", "value": "660e8400-e29b-41d4-a716-446655440001"}
+              ]
+            },
+            "description": "Filter section scores by wrestler ID"
+          }
+        },
+        {
+          "name": "Section Scores - Filter by Section",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/section_scores?section_key=body_composition",
+              "host": ["{{base_url}}"],
+              "path": ["section_scores"],
+              "query": [
+                {"key": "section_key", "value": "body_composition"}
+              ]
+            },
+            "description": "Filter section scores by section key"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Score Drivers",
+      "item": [
+        {
+          "name": "Score Drivers - Get All",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/score_drivers",
+              "host": ["{{base_url}}"],
+              "path": ["score_drivers"]
+            },
+            "description": "Retrieve all score driver metrics"
+          }
+        },
+        {
+          "name": "Score Drivers - Filter by Section Score",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/score_drivers?section_score_id=aa0e8400-e29b-41d4-a716-446655440020",
+              "host": ["{{base_url}}"],
+              "path": ["score_drivers"],
+              "query": [
+                {"key": "section_score_id", "value": "aa0e8400-e29b-41d4-a716-446655440020"}
+              ]
+            },
+            "description": "Filter score drivers by section score ID"
+          }
+        }
+      ]
+    }
+  ]
+}
