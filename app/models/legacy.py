@@ -15,10 +15,15 @@ Tables included:
 - UrionAnalysisGR (greco-roman urion analysis data)
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from sqlmodel import Field, SQLModel
+
+
+def _utc_now() -> datetime:
+    """Get current UTC datetime."""
+    return datetime.now(timezone.utc)
 
 
 class LegacyAthlete(SQLModel, table=True):
@@ -30,7 +35,7 @@ class LegacyAthlete(SQLModel, table=True):
     athlete_name: str
     field: Optional[str] = None
     name: Optional[str] = None
-    created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
+    created_at: Optional[datetime] = Field(default_factory=_utc_now)
 
 
 class SessionTime(SQLModel, table=True):
@@ -44,7 +49,7 @@ class SessionTime(SQLModel, table=True):
     shamsi_date: Optional[str] = None  # Persian/Shamsi date as text
     start_time: Optional[str] = None
     test_category: Optional[str] = None
-    created_at: Optional[datetime] = Field(default_factory=datetime.utcnow)
+    created_at: Optional[datetime] = Field(default_factory=_utc_now)
     athlete_name: Optional[str] = None
 
 

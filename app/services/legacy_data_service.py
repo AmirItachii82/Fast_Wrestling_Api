@@ -200,9 +200,10 @@ async def get_body_composition_fs_with_dates(
         )
     )
     
-    count_query = select(func.count(BodyCompositionFS.id))
-    
+    # Build conditions - track date conditions separately
     conditions = []
+    date_conditions = []
+    
     if athlete_name:
         conditions.append(BodyCompositionFS.athlete_name.ilike(f"%{athlete_name}%"))
     if metric_name:
@@ -210,25 +211,30 @@ async def get_body_composition_fs_with_dates(
     if session_id:
         conditions.append(BodyCompositionFS.session_id == session_id)
     if date_from:
-        conditions.append(SessionTime.miladi_date >= date_from)
+        date_conditions.append(SessionTime.miladi_date >= date_from)
     if date_to:
-        conditions.append(SessionTime.miladi_date <= date_to)
+        date_conditions.append(SessionTime.miladi_date <= date_to)
     
-    if conditions:
-        query = query.where(and_(*conditions))
-        # For count query, we need to join for date filtering
-        if date_from or date_to:
-            count_query = (
-                select(func.count(BodyCompositionFS.id))
-                .select_from(BodyCompositionFS)
-                .outerjoin(
-                    SessionTime,
-                    cast(BodyCompositionFS.session_id, BigInteger) == SessionTime.session_id
-                )
-                .where(and_(*conditions))
+    all_conditions = conditions + date_conditions
+    
+    if all_conditions:
+        query = query.where(and_(*all_conditions))
+    
+    # Build count query - only needs join if date filters are used
+    if date_conditions:
+        count_query = (
+            select(func.count(BodyCompositionFS.id))
+            .select_from(BodyCompositionFS)
+            .outerjoin(
+                SessionTime,
+                cast(BodyCompositionFS.session_id, BigInteger) == SessionTime.session_id
             )
-        else:
-            count_query = count_query.where(and_(*[c for c in conditions if 'session_time' not in str(c).lower()]))
+            .where(and_(*all_conditions))
+        )
+    elif conditions:
+        count_query = select(func.count(BodyCompositionFS.id)).where(and_(*conditions))
+    else:
+        count_query = select(func.count(BodyCompositionFS.id))
     
     # Get total count
     total_result = await db.execute(count_query)
@@ -302,9 +308,10 @@ async def get_body_composition_gr_with_dates(
         )
     )
     
-    count_query = select(func.count(BodyCompositionGR.id))
-    
+    # Build conditions - track date conditions separately
     conditions = []
+    date_conditions = []
+    
     if athlete_name:
         conditions.append(BodyCompositionGR.athlete_name.ilike(f"%{athlete_name}%"))
     if metric_name:
@@ -312,22 +319,30 @@ async def get_body_composition_gr_with_dates(
     if session_id:
         conditions.append(BodyCompositionGR.session_id == session_id)
     if date_from:
-        conditions.append(SessionTime.miladi_date >= date_from)
+        date_conditions.append(SessionTime.miladi_date >= date_from)
     if date_to:
-        conditions.append(SessionTime.miladi_date <= date_to)
+        date_conditions.append(SessionTime.miladi_date <= date_to)
     
-    if conditions:
-        query = query.where(and_(*conditions))
-        if date_from or date_to:
-            count_query = (
-                select(func.count(BodyCompositionGR.id))
-                .select_from(BodyCompositionGR)
-                .outerjoin(
-                    SessionTime,
-                    cast(BodyCompositionGR.session_id, BigInteger) == SessionTime.session_id
-                )
-                .where(and_(*conditions))
+    all_conditions = conditions + date_conditions
+    
+    if all_conditions:
+        query = query.where(and_(*all_conditions))
+    
+    # Build count query - only needs join if date filters are used
+    if date_conditions:
+        count_query = (
+            select(func.count(BodyCompositionGR.id))
+            .select_from(BodyCompositionGR)
+            .outerjoin(
+                SessionTime,
+                cast(BodyCompositionGR.session_id, BigInteger) == SessionTime.session_id
             )
+            .where(and_(*all_conditions))
+        )
+    elif conditions:
+        count_query = select(func.count(BodyCompositionGR.id)).where(and_(*conditions))
+    else:
+        count_query = select(func.count(BodyCompositionGR.id))
     
     total_result = await db.execute(count_query)
     total = total_result.scalar() or 0
@@ -367,6 +382,16 @@ async def get_chestbelt_hr_gr_with_dates(
     """
     Get chestbelt heart rate data with session dates resolved.
     
+    Args:
+        db: Database session.
+        page: Page number (1-indexed).
+        per_page: Number of items per page.
+        athlete_name: Optional filter by athlete name.
+        metric_name: Optional filter by metric name.
+        session_id: Optional filter by session ID.
+        date_from: Optional filter by start date (YYYY-MM-DD).
+        date_to: Optional filter by end date (YYYY-MM-DD).
+        
     Returns:
         Tuple of (list of measurements with dates, total count).
     """
@@ -388,9 +413,10 @@ async def get_chestbelt_hr_gr_with_dates(
         )
     )
     
-    count_query = select(func.count(ChestbeltHRGR.id))
-    
+    # Build conditions - track date conditions separately
     conditions = []
+    date_conditions = []
+    
     if athlete_name:
         conditions.append(ChestbeltHRGR.athlete_name.ilike(f"%{athlete_name}%"))
     if metric_name:
@@ -398,22 +424,30 @@ async def get_chestbelt_hr_gr_with_dates(
     if session_id:
         conditions.append(ChestbeltHRGR.session_id == session_id)
     if date_from:
-        conditions.append(SessionTime.miladi_date >= date_from)
+        date_conditions.append(SessionTime.miladi_date >= date_from)
     if date_to:
-        conditions.append(SessionTime.miladi_date <= date_to)
+        date_conditions.append(SessionTime.miladi_date <= date_to)
     
-    if conditions:
-        query = query.where(and_(*conditions))
-        if date_from or date_to:
-            count_query = (
-                select(func.count(ChestbeltHRGR.id))
-                .select_from(ChestbeltHRGR)
-                .outerjoin(
-                    SessionTime,
-                    cast(ChestbeltHRGR.session_id, BigInteger) == SessionTime.session_id
-                )
-                .where(and_(*conditions))
+    all_conditions = conditions + date_conditions
+    
+    if all_conditions:
+        query = query.where(and_(*all_conditions))
+    
+    # Build count query - only needs join if date filters are used
+    if date_conditions:
+        count_query = (
+            select(func.count(ChestbeltHRGR.id))
+            .select_from(ChestbeltHRGR)
+            .outerjoin(
+                SessionTime,
+                cast(ChestbeltHRGR.session_id, BigInteger) == SessionTime.session_id
             )
+            .where(and_(*all_conditions))
+        )
+    elif conditions:
+        count_query = select(func.count(ChestbeltHRGR.id)).where(and_(*conditions))
+    else:
+        count_query = select(func.count(ChestbeltHRGR.id))
     
     total_result = await db.execute(count_query)
     total = total_result.scalar() or 0
@@ -453,6 +487,16 @@ async def get_fitness_fs_with_dates(
     """
     Get fitness freestyle data with session dates resolved.
     
+    Args:
+        db: Database session.
+        page: Page number (1-indexed).
+        per_page: Number of items per page.
+        athlete_name: Optional filter by athlete name.
+        metric_name: Optional filter by metric name.
+        session_id: Optional filter by session ID.
+        date_from: Optional filter by start date (YYYY-MM-DD).
+        date_to: Optional filter by end date (YYYY-MM-DD).
+        
     Returns:
         Tuple of (list of measurements with dates, total count).
     """
@@ -474,9 +518,10 @@ async def get_fitness_fs_with_dates(
         )
     )
     
-    count_query = select(func.count(FitnessFS.id))
-    
+    # Build conditions - track date conditions separately
     conditions = []
+    date_conditions = []
+    
     if athlete_name:
         conditions.append(FitnessFS.athlete_name.ilike(f"%{athlete_name}%"))
     if metric_name:
@@ -484,22 +529,30 @@ async def get_fitness_fs_with_dates(
     if session_id:
         conditions.append(FitnessFS.session_id == session_id)
     if date_from:
-        conditions.append(SessionTime.miladi_date >= date_from)
+        date_conditions.append(SessionTime.miladi_date >= date_from)
     if date_to:
-        conditions.append(SessionTime.miladi_date <= date_to)
+        date_conditions.append(SessionTime.miladi_date <= date_to)
     
-    if conditions:
-        query = query.where(and_(*conditions))
-        if date_from or date_to:
-            count_query = (
-                select(func.count(FitnessFS.id))
-                .select_from(FitnessFS)
-                .outerjoin(
-                    SessionTime,
-                    cast(FitnessFS.session_id, BigInteger) == SessionTime.session_id
-                )
-                .where(and_(*conditions))
+    all_conditions = conditions + date_conditions
+    
+    if all_conditions:
+        query = query.where(and_(*all_conditions))
+    
+    # Build count query - only needs join if date filters are used
+    if date_conditions:
+        count_query = (
+            select(func.count(FitnessFS.id))
+            .select_from(FitnessFS)
+            .outerjoin(
+                SessionTime,
+                cast(FitnessFS.session_id, BigInteger) == SessionTime.session_id
             )
+            .where(and_(*all_conditions))
+        )
+    elif conditions:
+        count_query = select(func.count(FitnessFS.id)).where(and_(*conditions))
+    else:
+        count_query = select(func.count(FitnessFS.id))
     
     total_result = await db.execute(count_query)
     total = total_result.scalar() or 0
@@ -539,6 +592,16 @@ async def get_urion_analysis_gr_with_dates(
     """
     Get urion analysis data with session dates resolved.
     
+    Args:
+        db: Database session.
+        page: Page number (1-indexed).
+        per_page: Number of items per page.
+        athlete_name: Optional filter by athlete name.
+        metric_name: Optional filter by metric name.
+        session_id: Optional filter by session ID.
+        date_from: Optional filter by start date (YYYY-MM-DD).
+        date_to: Optional filter by end date (YYYY-MM-DD).
+        
     Returns:
         Tuple of (list of measurements with dates, total count).
     """
@@ -560,9 +623,10 @@ async def get_urion_analysis_gr_with_dates(
         )
     )
     
-    count_query = select(func.count(UrionAnalysisGR.id))
-    
+    # Build conditions - track date conditions separately
     conditions = []
+    date_conditions = []
+    
     if athlete_name:
         conditions.append(UrionAnalysisGR.athlete_name.ilike(f"%{athlete_name}%"))
     if metric_name:
@@ -570,22 +634,30 @@ async def get_urion_analysis_gr_with_dates(
     if session_id:
         conditions.append(UrionAnalysisGR.session_id == session_id)
     if date_from:
-        conditions.append(SessionTime.miladi_date >= date_from)
+        date_conditions.append(SessionTime.miladi_date >= date_from)
     if date_to:
-        conditions.append(SessionTime.miladi_date <= date_to)
+        date_conditions.append(SessionTime.miladi_date <= date_to)
     
-    if conditions:
-        query = query.where(and_(*conditions))
-        if date_from or date_to:
-            count_query = (
-                select(func.count(UrionAnalysisGR.id))
-                .select_from(UrionAnalysisGR)
-                .outerjoin(
-                    SessionTime,
-                    cast(UrionAnalysisGR.session_id, BigInteger) == SessionTime.session_id
-                )
-                .where(and_(*conditions))
+    all_conditions = conditions + date_conditions
+    
+    if all_conditions:
+        query = query.where(and_(*all_conditions))
+    
+    # Build count query - only needs join if date filters are used
+    if date_conditions:
+        count_query = (
+            select(func.count(UrionAnalysisGR.id))
+            .select_from(UrionAnalysisGR)
+            .outerjoin(
+                SessionTime,
+                cast(UrionAnalysisGR.session_id, BigInteger) == SessionTime.session_id
             )
+            .where(and_(*all_conditions))
+        )
+    elif conditions:
+        count_query = select(func.count(UrionAnalysisGR.id)).where(and_(*conditions))
+    else:
+        count_query = select(func.count(UrionAnalysisGR.id))
     
     total_result = await db.execute(count_query)
     total = total_result.scalar() or 0
